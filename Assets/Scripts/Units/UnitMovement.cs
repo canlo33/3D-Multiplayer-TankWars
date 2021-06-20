@@ -7,42 +7,28 @@ using UnityEngine.InputSystem;
 
 public class UnitMovement : NetworkBehaviour
 {
-    [SerializeField] private NavMeshAgent agent = null;
-
-    private Camera mainCamera;
-
-    #region Client
-
-    public override void OnStartAuthority()
-    {
-        mainCamera = Camera.main;
-    }
-
-    [ClientCallback]
-    private void Update()
-    {
-        // Check if the player has authority and right clicked on the platform, then move the unit to that position
-        if (!hasAuthority)  return; 
-
-        if (!Mouse.current.rightButton.wasPressedThisFrame)  return;
-
-        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-
-        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))  return; 
-
-        CmdMove(hit.point);
-    }
-
-    #endregion
+    [SerializeField] private NavMeshAgent agent;
 
     #region Server
 
+    //We using Unity functions with ServerCallback instead of Server as otherwise it will keep throwing errors in the console.
+    [ServerCallback]
+    private void Update()
+    {
+        //Check if we near enough to the target position, then stop moving.
+        if (!agent.hasPath)
+            return;
+        if (agent.remainingDistance > agent.stoppingDistance)
+            return;
+        agent.ResetPath();
+    }
+
     [Command]
-    private void CmdMove(Vector3 position)
+    public void CmdMove(Vector3 position)
     {
         // This function will check if the position player wants to move is legit, then commands the server to move the unit.
-        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas)) { return; }
-
+        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))  return;
+        
         agent.SetDestination(hit.position);
     }
 

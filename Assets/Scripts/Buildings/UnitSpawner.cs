@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 {
     [SerializeField] private GameObject unitPrefab;
     [SerializeField] private Transform unitSpawnPoint;
+    [SerializeField] private LayerMask layerMask;
 
     #region Server
 
@@ -28,11 +30,16 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
     {
         //Check if we clink the left mouse button and if we have authority, then spawn a unit.
         if (eventData.button != PointerEventData.InputButton.Left)  return; 
-
-        if (!hasAuthority)  return; 
-
+        if (!hasAuthority)  return;
         CmdSpawnUnit();
     }
 
     #endregion
+
+    private void Update()
+    {
+        //Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+        //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+        //    Debug.Log(hit.collider.name);
+    }
 }
