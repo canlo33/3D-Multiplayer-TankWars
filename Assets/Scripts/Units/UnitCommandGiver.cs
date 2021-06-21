@@ -16,13 +16,25 @@ public class UnitCommandGiver : MonoBehaviour
     private void Update()
     {
         // Check if the player is clicking on a legit place 
-        if (!Mouse.current.rightButton.wasPressedThisFrame) return;
-
+        if (!Mouse.current.rightButton.wasPressedThisFrame) 
+            return;
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask)) 
+            return;
+        //Check if player clicked to a targetable object, if so then set it as target.
+        if (hit.collider.TryGetComponent<Targetable>(out Targetable target))
+        {
+            if (target.hasAuthority)
+            {
+                TryMove(hit.point);
+                return;
+            }
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask)) return;
-
+            TryTarget(target);
+            return;
+        }
         TryMove(hit.point);
+
     }
 
     private void TryMove(Vector3 point)
@@ -33,4 +45,12 @@ public class UnitCommandGiver : MonoBehaviour
             unit.UnitMovement.CmdMove(point);
         }
     }
+    private void TryTarget(Targetable target)
+    {
+        foreach (Unit unit in unitSelectionHandler.SelectedUnits)
+        {
+            unit.Targeter.CmdSetTarget(target.gameObject);
+        }
+    }
+
 }
