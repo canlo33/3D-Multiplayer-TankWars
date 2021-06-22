@@ -9,17 +9,19 @@ public class Unit : NetworkBehaviour
 {
     public UnitMovement UnitMovement { get; private set; }
     public Targeter Targeter { get; private set; }
+    private HealthSystem healthSystem;
     [SerializeField] private UnityEvent onSelected;
     [SerializeField] private UnityEvent onDeselected;
 
-    public static event Action<Unit> ServerOnUnitySpawned;
-    public static event Action<Unit> ServerOnUnityDespawned;
+    public static event Action<Unit> ServerOnUnitSpawned;
+    public static event Action<Unit> ServerOnUnitDespawned;
 
-    public static event Action<Unit> AuthorityOnUnitySpawned;
-    public static event Action<Unit> AuthorityOnUnityDespawned;
+    public static event Action<Unit> AuthorityOnUnitSpawned;
+    public static event Action<Unit> AuthorityOnUnitDespawned;
 
-    private void Start()
+    private void Awake()
     {
+        healthSystem = GetComponent<HealthSystem>();
         UnitMovement = GetComponent<UnitMovement>();
         Targeter = GetComponent<Targeter>();
     }
@@ -28,28 +30,33 @@ public class Unit : NetworkBehaviour
 
     public override void OnStartServer()
     {
-        ServerOnUnitySpawned?.Invoke(this);
+        healthSystem.ServerOnDie += HandleServerOnDie;
+        ServerOnUnitSpawned?.Invoke(this);
     }
     public override void OnStopServer()
     {
-        ServerOnUnityDespawned?.Invoke(this);
+        healthSystem.ServerOnDie -= HandleServerOnDie;
+        ServerOnUnitDespawned?.Invoke(this);
+    }
+
+    [Server]
+    private void HandleServerOnDie()
+    {
+        NetworkServer.Destroy(gameObject);
     }
 
     #endregion
 
     #region Client
-    public override void OnStartClient()
+    public override void OnStartAuthority()
     {
-        //Check if we are client only and hasAuthority, then trigger the event. As we dont want the server to duplicate the list because server will be both a client and server so it will have
-        // two lists if we dont check it.
-        if (!isClientOnly || !hasAuthority) return;
-        AuthorityOnUnitySpawned?.Invoke(this);
+        AuthorityOnUnitSpawned?.Invoke(this);
     }
     public override void OnStopClient()
     {
         //Check if we are client only and hasAuthority, then trigger the event.
         if (!isClientOnly || !hasAuthority) return;
-        AuthorityOnUnityDespawned?.Invoke(this);
+        AuthorityOnUnitDespawned?.Invoke(this);
     }
 
     [Client]

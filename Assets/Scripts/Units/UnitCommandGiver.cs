@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,15 @@ public class UnitCommandGiver : MonoBehaviour
     private void Start()
     {
         mainCamera = Camera.main;
+        GameOverManager.ClientOnGameOver += HandleClientOnGameOver;
+    }
+    private void OnDestroy()
+    {
+        GameOverManager.ClientOnGameOver -= HandleClientOnGameOver;
+    }
+    private void HandleClientOnGameOver(string winnerPlayerName)
+    {
+        enabled = false;
     }
 
     private void Update()
@@ -29,12 +39,10 @@ public class UnitCommandGiver : MonoBehaviour
                 TryMove(hit.point);
                 return;
             }
-
             TryTarget(target);
             return;
         }
         TryMove(hit.point);
-
     }
 
     private void TryMove(Vector3 point)

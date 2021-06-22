@@ -217,6 +217,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: NetworkManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7680066564213971284, guid: 030704d3e11d6704b856729215a1c19f, type: 3}
+      propertyPath: onlineScene
+      value: Assets/Scenes/Level01.unity
+      objectReference: {fileID: 0}
+    - target: {fileID: 7680066564213971284, guid: 030704d3e11d6704b856729215a1c19f, type: 3}
+      propertyPath: gameOverManagerPrefab
+      value: 
+      objectReference: {fileID: 773005451218260381, guid: c6af9f9e4acb8ad4090e3ba2867695d0, type: 3}
     - target: {fileID: 7680066564213971287, guid: 030704d3e11d6704b856729215a1c19f, type: 3}
       propertyPath: m_RootOrder
       value: 2

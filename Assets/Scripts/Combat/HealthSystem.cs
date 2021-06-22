@@ -20,7 +20,23 @@ public class HealthSystem : NetworkBehaviour
     public override void OnStartServer()
     {
         currentHealth = maxHealth;
+
+        UnitBase.ServerOnPlayerDied += HandleServerOnPlayerDied;
     }
+
+    public override void OnStopServer()
+    {
+        UnitBase.ServerOnPlayerDied -= HandleServerOnPlayerDied;
+    }
+
+    private void HandleServerOnPlayerDied(int connectionId)
+    {
+        //Check if the player who died is also the same player who owns this unit,if not then return but if it is the same player, then destroy all the units it has.
+        if (connectionToClient.connectionId != connectionId)
+            return;
+        DealDamage(currentHealth);
+    }
+
     [Server]
     public void DealDamage(int damageAmount)
     {

@@ -10,13 +10,13 @@ public class MyPlayer : NetworkBehaviour
     #region Server
     public override void OnStartServer()
     {
-        Unit.ServerOnUnitySpawned += ServerUnitSpawned;
-        Unit.ServerOnUnityDespawned += ServerUnitDespawned;
+        Unit.ServerOnUnitSpawned += ServerUnitSpawned;
+        Unit.ServerOnUnitDespawned += ServerUnitDespawned;
     }
     public override void OnStopServer()
     {
-        Unit.ServerOnUnitySpawned -= ServerUnitSpawned;
-        Unit.ServerOnUnityDespawned -= ServerUnitDespawned;
+        Unit.ServerOnUnitSpawned -= ServerUnitSpawned;
+        Unit.ServerOnUnitDespawned -= ServerUnitDespawned;
     }
     private void ServerUnitSpawned(Unit unit)
     {
@@ -34,26 +34,24 @@ public class MyPlayer : NetworkBehaviour
     #endregion
 
     #region Client
-    public override void OnStartClient()
+    public override void OnStartAuthority()
     {
-        if (!isClientOnly) return;
-        Unit.AuthorityOnUnitySpawned += AuthorityUnitSpawned;
-        Unit.AuthorityOnUnityDespawned += AuthorityUnitDespawned;
+        if (NetworkServer.active) return;
+        Unit.AuthorityOnUnitSpawned += AuthorityUnitSpawned;
+        Unit.AuthorityOnUnitDespawned += AuthorityUnitDespawned;
     }
     public override void OnStopClient()
     {
-        if (!isClientOnly) return;
-        Unit.AuthorityOnUnitySpawned -= AuthorityUnitSpawned;
-        Unit.AuthorityOnUnityDespawned -= AuthorityUnitDespawned;
+        if (!isClientOnly || !hasAuthority) return;
+        Unit.AuthorityOnUnitSpawned -= AuthorityUnitSpawned;
+        Unit.AuthorityOnUnitDespawned -= AuthorityUnitDespawned;
     }
     private void AuthorityUnitSpawned(Unit unit)
     {
-        if (!hasAuthority) return;
         MyUnits.Add(unit);
     }
     private void AuthorityUnitDespawned(Unit unit)
     {
-        if (!hasAuthority) return;
         MyUnits.Add(unit);
     }
     #endregion

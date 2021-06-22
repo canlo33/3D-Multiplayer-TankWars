@@ -10,8 +10,24 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
     [SerializeField] private GameObject unitPrefab;
     [SerializeField] private Transform unitSpawnPoint;
     [SerializeField] private LayerMask layerMask;
+    private HealthSystem healthSystem;
 
     #region Server
+
+    public override void OnStartServer()
+    {
+        healthSystem = GetComponent<HealthSystem>();
+        healthSystem.ServerOnDie += HandleServerOnDie;
+    }
+    public override void OnStopServer()
+    {
+        healthSystem.ServerOnDie -= HandleServerOnDie;
+    }
+    [Server]
+    private void HandleServerOnDie()
+    {
+        NetworkServer.Destroy(gameObject);
+    }
 
     [Command]
     private void CmdSpawnUnit()
@@ -36,10 +52,4 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 
     #endregion
 
-    private void Update()
-    {
-        //Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
-        //if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
-        //    Debug.Log(hit.collider.name);
-    }
 }

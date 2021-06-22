@@ -16,6 +16,22 @@ public class UnitSelectionHandler : MonoBehaviour
     {
         mainCamera = Camera.main;
         player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
+        Unit.AuthorityOnUnitDespawned += HandleAuthorityOnUnitDespawned;
+        GameOverManager.ClientOnGameOver += HandleClientOnGameOver;
+    }
+    private void OnDestroy()
+    {
+        Unit.AuthorityOnUnitDespawned -= HandleAuthorityOnUnitDespawned;
+        GameOverManager.ClientOnGameOver -= HandleClientOnGameOver;
+    }
+    private void HandleAuthorityOnUnitDespawned(Unit unit)
+    {
+        SelectedUnits.Remove(unit);
+    }
+
+    private void HandleClientOnGameOver(string winnerPlayerName)
+    {
+        enabled = false;
     }
     private void Update()
     {
@@ -50,6 +66,7 @@ public class UnitSelectionHandler : MonoBehaviour
     }
     private void UpdateSelectionBox()
     {
+        //This function will update the selection box size when player clicks and drags the mouse to choice multiple units at once.
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         // Calculate the size of the selection box. 
         float selectionBoxWidth = mousePosition.x - startDraggingPosition.x;
@@ -58,7 +75,6 @@ public class UnitSelectionHandler : MonoBehaviour
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(selectionBoxWidth), Mathf.Abs(selectionBoxHeight));
         selectionBox.anchoredPosition = startDraggingPosition + new Vector2(selectionBoxWidth / 2, selectionBoxHeight / 2);
     }
-
     private void ClearSelectionArea()
     {
         selectionBox.gameObject.SetActive(false);

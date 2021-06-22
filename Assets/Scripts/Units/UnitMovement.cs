@@ -17,8 +17,25 @@ public class UnitMovement : NetworkBehaviour
     }
     #region Server
 
-    //We using Unity functions with ServerCallback instead of Server as otherwise it will keep throwing errors in the console.
-    [ServerCallback]
+    public override void OnStartServer()
+    {
+        GameOverManager.ServerOnGameOver += HandleServerOnGameOver;
+    }
+
+    public override void OnStopServer()
+    {
+        GameOverManager.ServerOnGameOver -= HandleServerOnGameOver;
+    }
+
+    [Server]
+    private void HandleServerOnGameOver()
+    {
+        //When the game is over, stop all the units.
+        agent.ResetPath();
+    }
+
+        //We using Unity functions with ServerCallback instead of Server as otherwise it will keep throwing errors in the console.
+        [ServerCallback]
     private void Update()
     {
         Targetable target = targeter.Target;
