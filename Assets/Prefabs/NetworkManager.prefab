@@ -77,7 +77,7 @@ MonoBehaviour:
   serverBatching: 1
   serverBatchInterval: 0
   offlineScene: Assets/Scenes/Menu Scene.unity
-  onlineScene: Assets/Scenes/SampleScene.unity
+  onlineScene: Assets/Scenes/Level01.unity
   transport: {fileID: 7680066564213971286}
   networkAddress: localhost
   maxConnections: 100
@@ -89,11 +89,13 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 3316639681055315694, guid: 63ff43dd579cb89439385c22e78cf280, type: 3}
-  - {fileID: 3536918113070637506, guid: dd2de2adbdc8e714c913a26e8364fcb9, type: 3}
+  - {fileID: 6284570437997094914, guid: b8cebaf66bea14044b7b5881f0a3f5b2, type: 3}
   - {fileID: 8871052438836533242, guid: c332d9eca0e5ac24998b2069a28777ab, type: 3}
   - {fileID: 2712006228654030393, guid: c6af9f9e4acb8ad4090e3ba2867695d0, type: 3}
-  unitSpawnerPrefab: {fileID: 3536918113070637506, guid: dd2de2adbdc8e714c913a26e8364fcb9, type: 3}
-  gameOverManagerPrefab: {fileID: 0}
+  - {fileID: 6284570437997094914, guid: b38c7c90e836d044aaf46bf69afa9ff2, type: 3}
+  - {fileID: 6284570437997094914, guid: 4ce4fccfa0a4b204487689116f87580a, type: 3}
+  unitSpawnerPrefab: {fileID: 6284570437997094914, guid: b8cebaf66bea14044b7b5881f0a3f5b2, type: 3}
+  gameOverManagerPrefab: {fileID: 773005451218260381, guid: c6af9f9e4acb8ad4090e3ba2867695d0, type: 3}
 --- !u!114 &7680066564213971285
 MonoBehaviour:
   m_ObjectHideFlags: 0

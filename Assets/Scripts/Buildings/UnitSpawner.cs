@@ -9,7 +9,6 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 {
     [SerializeField] private GameObject unitPrefab;
     [SerializeField] private Transform unitSpawnPoint;
-    [SerializeField] private LayerMask layerMask;
     private HealthSystem healthSystem;
 
     #region Server
