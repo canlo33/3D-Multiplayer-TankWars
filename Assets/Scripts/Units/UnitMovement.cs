@@ -58,9 +58,13 @@ public class UnitMovement : NetworkBehaviour
 
         agent.ResetPath();
     }
-
     [Command]
     public void CmdMove(Vector3 position)
+    {
+        ServerMove(position);
+    }
+    [Server]
+    public void ServerMove(Vector3 position)
     {
         // This function will check if the position player wants to move towards is legit, then commands the server to move the unit.
         if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))  return;

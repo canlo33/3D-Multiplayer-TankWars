@@ -37,18 +37,20 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6284570437997094914}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89752bbb94d7ad94da272af14530c458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  unitPrefab: {fileID: 3316639681055315694, guid: 63ff43dd579cb89439385c22e78cf280, type: 3}
+  unitPrefab: {fileID: 0}
+  maxUnitQueue: 5
   unitSpawnPoint: {fileID: 4344603137236605289}
-  layerMask:
-    serializedVersion: 2
-    m_Bits: 0
+  remainingUnitsText: {fileID: 0}
+  fillImage: {fileID: 0}
+  unitSpawnDuration: 5
+  spawnMoveRange: 7
 --- !u!114 &8802527020767980674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,6 +65,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+--- !u!114 &7344628343500221875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6284570437997094914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3382b6e86e698ab4897850df32dde707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  colorRenderers:
+  - {fileID: 3045853476849887654}
 --- !u!1 &7166701372332955748
 GameObject:
   m_ObjectHideFlags: 0

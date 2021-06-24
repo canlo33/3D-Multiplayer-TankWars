@@ -17,10 +17,12 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     private GameObject buildingPreviewInstance;
     private Renderer buildingRendererInstance;
     private Camera mainCamera;
+    private BoxCollider buildingCollider;
 
     private void Start()
     {
         mainCamera = Camera.main;
+        buildingCollider = building.GetComponent<BoxCollider>();
         iconImage.sprite = building.GetIcon();
         priceText.text = building.GetCost().ToString();
     }
@@ -28,18 +30,22 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     private void Update()
     {
         if (player == null)
-        {
             player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
-        }
 
-        if (buildingPreviewInstance == null) { return; }
+        if (player.GetResources() < building.GetCost()) 
+            return; 
+
+        if (buildingPreviewInstance == null) 
+            return; 
 
         UpdateBuildingPreview();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button != PointerEventData.InputButton.Left) { return; }
+        //If we click on the button and hold, Instatiate the building preview.
+        if (eventData.button != PointerEventData.InputButton.Left)  
+            return; 
 
         buildingPreviewInstance = Instantiate(building.GetBuildingPreview());
         buildingRendererInstance = buildingPreviewInstance.GetComponentInChildren<Renderer>();
@@ -49,29 +55,36 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (buildingPreviewInstance == null) { return; }
+        //Once we let go of the left click, try to place the building and destroy the building preview object.
+        if (buildingPreviewInstance == null) 
+            return; 
 
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, floorMask))
-        {
             player.CmdTryPlaceBuilding(building.GetId(), hit.point);
-        }
 
         Destroy(buildingPreviewInstance);
     }
 
     private void UpdateBuildingPreview()
     {
+        //Update the position of the building preview on the floor.
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, floorMask)) { return; }
+        if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, floorMask))  
+            return; 
 
         buildingPreviewInstance.transform.position = hit.point;
 
-        if (!buildingPreviewInstance.activeSelf)
-        {
+        if (!buildingPreviewInstance.activeSelf)    
             buildingPreviewInstance.SetActive(true);
-        }
+
+        //Change the color of the building preview. If the conditions are valid make it green, else make it red.
+        Color color = player.CanPlaceBuilding(buildingCollider, hit.point) ? Color.green : Color.red;
+
+        buildingRendererInstance.material.SetColor("_BaseColor", color);
+
+
     }
 }

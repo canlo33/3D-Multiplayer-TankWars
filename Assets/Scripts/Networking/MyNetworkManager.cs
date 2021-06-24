@@ -13,11 +13,16 @@ public class MyNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnection conn)
     {
         base.OnServerAddPlayer(conn);
+
+        //Give the player a random color.
+        MyPlayer player = conn.identity.GetComponent<MyPlayer>();
+
+        Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+
+        player.SetColor(color);
+
         //As soon as a new player connects to the game, spawn a unit spawner for them and link it to that client only.
-        GameObject unitSpawnerInstance = Instantiate(
-            unitSpawnerPrefab,
-            conn.identity.transform.position,
-            conn.identity.transform.rotation);
+        GameObject unitSpawnerInstance = Instantiate(unitSpawnerPrefab, conn.identity.transform.position, conn.identity.transform.rotation);
 
         NetworkServer.Spawn(unitSpawnerInstance, conn);
     }

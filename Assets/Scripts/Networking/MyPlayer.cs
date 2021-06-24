@@ -10,7 +10,13 @@ public class MyPlayer : NetworkBehaviour
     public List<Unit> MyUnits { get; private set; } = new List<Unit>();
     public List<Building> MyBuildings { get; private set; } = new List<Building>();
 
+    [SerializeField] private LayerMask buildingBlockLayer = new LayerMask();
+
+    [SerializeField] private float buildingRangeLimit = 5f;
+
     public event Action<int> ClientOnResourcesUpdated;
+
+    private Color playerColor;
 
     [SyncVar(hook = nameof(ClientHandleResourcesUpdated))]
     private int resources = 500;
@@ -19,10 +25,23 @@ public class MyPlayer : NetworkBehaviour
     {
         return resources;
     }
-    [Server]
-    public void SetResources(int newResources)
+    public Color GetColor()
     {
-        resources = newResources;
+        return playerColor;
+    }
+    public bool CanPlaceBuilding(BoxCollider buildingCollider, Vector3 point)
+    {
+        //Check if there is any obstacle on where we want to place.
+        if (Physics.CheckBox(point + buildingCollider.center, buildingCollider.size / 2, Quaternion.identity, buildingBlockLayer))
+            return false;
+
+        //Check if we are close enough to our buildings.
+        foreach (Building building in buildings)
+        {
+            if (Vector3.Distance(point, building.transform.position) <= buildingRangeLimit)
+                return true;
+        }
+        return false;
     }
 
     #region Server
@@ -30,11 +49,27 @@ public class MyPlayer : NetworkBehaviour
     {
         Unit.ServerOnUnitSpawned += HandleServerUnitSpawned;
         Unit.ServerOnUnitDespawned += HandleServerUnitDespawned;
+        Building.ServerOnBuildingSpawned += HandleServerOnBuildingSpawned;
+        Building.ServerOnBuildingDespawned += HandleServerOnBuildingDespawned;
+
     }
     public override void OnStopServer()
     {
         Unit.ServerOnUnitSpawned -= HandleServerUnitSpawned;
         Unit.ServerOnUnitDespawned -= HandleServerUnitDespawned;
+        Building.ServerOnBuildingSpawned -= HandleServerOnBuildingSpawned;
+        Building.ServerOnBuildingDespawned -= HandleServerOnBuildingDespawned;
+
+    }
+    [Server]
+    public void SetResources(int newResources)
+    {
+        resources = newResources;
+    }
+    [Server]
+    public void SetColor(Color color)
+    {
+        playerColor = color;
     }
     private void ClientHandleResourcesUpdated(int oldResources, int newResources)
     {
@@ -73,6 +108,7 @@ public class MyPlayer : NetworkBehaviour
     public void CmdTryPlaceBuilding(int buildingId, Vector3 position)
     {
         Building buildingToPlace = null;
+
         //Get the building with the matching Id from the building array.
         foreach (Building building in buildings)
         {
@@ -82,13 +118,24 @@ public class MyPlayer : NetworkBehaviour
                 break;
             }
         }
-
+        //Check if the building exists and we have enough resource for it.
         if (buildingToPlace == null) 
             return;
-        //Instatiate it and spawn it on the network.
+        if (buildingToPlace.GetCost() > resources)
+            return;
+
+        //Check if the position we want to place the building is valid or not.
+        BoxCollider buildingCollider = buildingToPlace.GetComponent<BoxCollider>();
+
+        if (!CanPlaceBuilding(buildingCollider, position)) 
+            return; 
+
+        //Spawn the unit on the network and deduct the cost from player resources.
         GameObject buildingInstance = Instantiate(buildingToPlace.gameObject, position, buildingToPlace.transform.rotation);
 
         NetworkServer.Spawn(buildingInstance, connectionToClient);
+
+        SetResources(resources - buildingToPlace.GetCost());
 
     }
 

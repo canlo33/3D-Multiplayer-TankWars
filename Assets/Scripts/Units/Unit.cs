@@ -10,6 +10,7 @@ public class Unit : NetworkBehaviour
     public UnitMovement UnitMovement { get; private set; }
     public Targeter Targeter { get; private set; }
     private HealthSystem healthSystem;
+    [SerializeField] private int cost = 10;
     [SerializeField] private UnityEvent onSelected;
     [SerializeField] private UnityEvent onDeselected;
 
@@ -24,6 +25,10 @@ public class Unit : NetworkBehaviour
         healthSystem = GetComponent<HealthSystem>();
         UnitMovement = GetComponent<UnitMovement>();
         Targeter = GetComponent<Targeter>();
+    }
+    public int GetCost()
+    {
+        return cost;
     }
 
     #region Server
