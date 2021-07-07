@@ -10,28 +10,23 @@ public class ResourcesUI : MonoBehaviour
 
     private MyPlayer player;
 
-    private void Update()
+    private void Start()
     {
-        if (player == null)
-        {
-            player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
+        player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
 
-            if (player != null)
-            {
-                ClientHandleResourcesUpdated(player.GetResources());
+        HandleClientOnResourcesUpdated(player.GetResources());
 
-                player.ClientOnResourcesUpdated += ClientHandleResourcesUpdated;
-            }
-        }
+        player.ClientOnResourcesUpdated += HandleClientOnResourcesUpdated;
     }
 
     private void OnDestroy()
     {
-        player.ClientOnResourcesUpdated -= ClientHandleResourcesUpdated;
+        player.ClientOnResourcesUpdated -= HandleClientOnResourcesUpdated;
     }
 
-    private void ClientHandleResourcesUpdated(int resources)
+    private void HandleClientOnResourcesUpdated(int resources)
     {
+        //When Resources changed, update the UI text.
         resourcesText.text = "Resources: " + resources;
     }
 }

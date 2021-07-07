@@ -19,6 +19,7 @@ public class CameraController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         playerCameraTransform.gameObject.SetActive(true);
+        playerCameraTransform.position = new Vector3(0f, 10f, 0f);
 
         inputControls = new InputControls();
 

@@ -21,6 +21,7 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
     private void Start()
     {
+        player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
         mainCamera = Camera.main;
         buildingCollider = building.GetComponent<BoxCollider>();
         iconImage.sprite = building.GetIcon();
@@ -29,8 +30,6 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
     private void Update()
     {
-        if (player == null)
-            player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
 
         if (player.GetResources() < building.GetCost()) 
             return; 

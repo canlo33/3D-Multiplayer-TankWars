@@ -16,10 +16,20 @@ public class MyPlayer : NetworkBehaviour
 
     public event Action<int> ClientOnResourcesUpdated;
 
+    public static event Action<bool> AuthorityOnPartyOwnerUpdated;
+
+    public static event Action ClientOnNameUpdated;
+
     private Color playerColor;
+
+    [SyncVar(hook = nameof(HandleAuthorityOnPartyOwnerUpdated))]
+    private bool isPartyOwner = false;
 
     [SyncVar(hook = nameof(ClientHandleResourcesUpdated))]
     private int resources = 500;
+
+    [SyncVar(hook = nameof(ClientHandleOnNameUpdated))]
+    private string playerName;
 
     public int GetResources()
     {
@@ -29,6 +39,11 @@ public class MyPlayer : NetworkBehaviour
     {
         return playerColor;
     }
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
+
     public bool CanPlaceBuilding(BoxCollider buildingCollider, Vector3 point)
     {
         //Check if there is any obstacle on where we want to place.
@@ -43,6 +58,10 @@ public class MyPlayer : NetworkBehaviour
         }
         return false;
     }
+    public bool GetIsPartyOwner()
+    {
+        return isPartyOwner;
+    }
 
     #region Server
     public override void OnStartServer()
@@ -51,6 +70,8 @@ public class MyPlayer : NetworkBehaviour
         Unit.ServerOnUnitDespawned += HandleServerUnitDespawned;
         Building.ServerOnBuildingSpawned += HandleServerOnBuildingSpawned;
         Building.ServerOnBuildingDespawned += HandleServerOnBuildingDespawned;
+
+        DontDestroyOnLoad(gameObject);
 
     }
     public override void OnStopServer()
@@ -61,16 +82,39 @@ public class MyPlayer : NetworkBehaviour
         Building.ServerOnBuildingDespawned -= HandleServerOnBuildingDespawned;
 
     }
+    [Command]
+    public void CmdStartGame()
+    {
+        // If we are the host(partyowner), start the game.
+        if (!isPartyOwner)
+            return; 
+
+        ((MyNetworkManager)NetworkManager.singleton).StartGame();
+    }
+    [Server]
+    public void SetPlayerName(string newName)
+    {
+        playerName = newName;
+    }
+
     [Server]
     public void SetResources(int newResources)
     {
         resources = newResources;
     }
+
     [Server]
     public void SetColor(Color color)
     {
         playerColor = color;
     }
+
+    [Server]
+    public void SetPartyOwner(bool state)
+    {
+        isPartyOwner = state;
+    }
+
     private void ClientHandleResourcesUpdated(int oldResources, int newResources)
     {
         ClientOnResourcesUpdated?.Invoke(newResources);
@@ -82,12 +126,14 @@ public class MyPlayer : NetworkBehaviour
         if (unit.connectionToClient.connectionId != connectionToClient.connectionId)  return; 
         MyUnits.Add(unit);
     }
+
     private void HandleServerUnitDespawned(Unit unit)
     {
         // Check if this unit belongs to the client that is trying access it, if so then remove it from the unit list.
         if (unit.connectionToClient.connectionId != connectionToClient.connectionId)  return; 
         MyUnits.Add(unit);
     }
+
     private void HandleServerOnBuildingSpawned(Building building)
     {
         if (building.connectionToClient.connectionId != connectionToClient.connectionId)  
@@ -96,6 +142,7 @@ public class MyPlayer : NetworkBehaviour
         MyBuildings.Add(building);
 
     }
+
     private void HandleServerOnBuildingDespawned(Building building)
     {
         if (building.connectionToClient.connectionId != connectionToClient.connectionId)
@@ -104,6 +151,7 @@ public class MyPlayer : NetworkBehaviour
         MyBuildings.Remove(building);
 
     }
+
     [Command]
     public void CmdTryPlaceBuilding(int buildingId, Vector3 position)
     {
@@ -152,9 +200,26 @@ public class MyPlayer : NetworkBehaviour
         Building.AuthorityOnBuildingSpawned += HandleAuthorityOnBuildingSpawned;
         Building.AuthorityOnBuildingDespawned += HandleAuthorityOnBuildingDespawned;
     }
+    public override void OnStartClient()
+    {
+        if (NetworkServer.active) 
+            return;
+
+        DontDestroyOnLoad(gameObject);
+
+        ((MyNetworkManager)NetworkManager.singleton).Players.Add(this);
+    }
+
     public override void OnStopClient()
     {
-        if (!isClientOnly || !hasAuthority) return;
+        if (!isClientOnly)  
+                return; 
+        // If client disconnects, remove it from the players list.
+        ((MyNetworkManager)NetworkManager.singleton).Players.Remove(this);
+
+        if (!hasAuthority) 
+            return; 
+
         Unit.AuthorityOnUnitSpawned -= HandleAuthorityOnUnitSpawned;
         Unit.AuthorityOnUnitDespawned -= HandleAuthorityOnUnitDespawned;
         Building.ServerOnBuildingSpawned -= HandleServerOnBuildingSpawned;
@@ -176,6 +241,18 @@ public class MyPlayer : NetworkBehaviour
     {
         MyBuildings.Remove(building);
     }
+    private void HandleAuthorityOnPartyOwnerUpdated(bool oldState, bool newState)
+    {
+        if (!hasAuthority)  
+            return; 
+
+        AuthorityOnPartyOwnerUpdated?.Invoke(newState);
+    }
+    private void ClientHandleOnNameUpdated(string oldDisplayName, string newDisplayName)
+    {
+        ClientOnNameUpdated?.Invoke();
+    }
+
 
     #endregion
 }

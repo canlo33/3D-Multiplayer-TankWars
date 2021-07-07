@@ -29,16 +29,11 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
     private void Update()
     {
         if (isServer)
-        {
             ProduceUnits();
-        }
 
         if (isClient)
-        {
             UpdateTimerDisplay();
-        }
     }
-
 
     #region Server
 
@@ -54,16 +49,15 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
     [Server]
     private void ProduceUnits()
     {
-        if (queuedUnits == 0) { return; }
+        if (queuedUnits == 0)  
+            return; 
 
         unitTimer += Time.deltaTime;
 
-        if (unitTimer < unitSpawnDuration) { return; }
+        if (unitTimer < unitSpawnDuration) 
+            return; 
 
-        GameObject unitInstance = Instantiate(
-            unitPrefab.gameObject,
-            unitSpawnPoint.position,
-            unitSpawnPoint.rotation);
+        GameObject unitInstance = Instantiate(unitPrefab.gameObject, unitSpawnPoint.position, unitSpawnPoint.rotation);
 
         NetworkServer.Spawn(unitInstance, connectionToClient);
 

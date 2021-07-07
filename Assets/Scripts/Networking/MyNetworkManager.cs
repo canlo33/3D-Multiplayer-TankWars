@@ -3,40 +3,115 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using UnityEngine.SceneManagement;
+using System;
 
 public class MyNetworkManager : NetworkManager
 {
 
-    [SerializeField] private GameObject unitSpawnerPrefab;
+    [SerializeField] private GameObject unitBasePrefab;
     [SerializeField] private GameOverManager gameOverManagerPrefab;
+
+    private bool isGameInProgress = false;
+    public List<MyPlayer> Players { get; private set; } = new List<MyPlayer>();
+
+    public static event Action ClientOnConnected;
+    public static event Action ClientOnDisconnected;
+
+    #region Server
+
+    public override void OnServerConnect(NetworkConnection conn)
+    {
+        if (!isGameInProgress) 
+            return; 
+
+        conn.Disconnect();
+    }
+
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        MyPlayer player = conn.identity.GetComponent<MyPlayer>();
+
+        Players.Remove(player);
+
+        base.OnServerDisconnect(conn);
+    }
+
+    public override void OnStopServer()
+    {
+        Players.Clear();
+
+        isGameInProgress = false;
+    }
+
+    public void StartGame()
+    {
+        if (Players.Count != 2) 
+            return; 
+
+        isGameInProgress = true;
+
+        ServerChangeScene("Level01");
+    }
 
     public override void OnServerAddPlayer(NetworkConnection conn)
     {
         base.OnServerAddPlayer(conn);
 
-        //Give the player a random color.
         MyPlayer player = conn.identity.GetComponent<MyPlayer>();
 
-        Color color = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
+        Players.Add(player);
 
-        player.SetColor(color);
+        player.SetPlayerName("Player " + Players.Count);
 
-        //As soon as a new player connects to the game, spawn a unit spawner for them and link it to that client only.
-        GameObject unitSpawnerInstance = Instantiate(unitSpawnerPrefab, conn.identity.transform.position, conn.identity.transform.rotation);
+        //Give the player a random color.
+        player.SetColor(new Color( UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f), UnityEngine.Random.Range(0f, 1f)));
 
-        NetworkServer.Spawn(unitSpawnerInstance, conn);
+        //Make the first player the party owner.
+        player.SetPartyOwner(Players.Count == 1);
     }
 
     public override void OnServerSceneChanged(string sceneName)
     {
-        //After the scene is changed, check if the scene is a level if so then instanciate the GameOverManager.
+        //After the scene is changed, check if the scene is a level if so then instanciate the GameOverManager and Unit Base.
         if (SceneManager.GetActiveScene().name.StartsWith("Level"))
         {
-            GameOverManager gameOverManager = Instantiate(gameOverManagerPrefab);
+            GameOverManager gameOverHandlerInstance = Instantiate(gameOverManagerPrefab);
 
-            NetworkServer.Spawn(gameOverManager.gameObject);
+            NetworkServer.Spawn(gameOverHandlerInstance.gameObject);
+
+            foreach (MyPlayer player in Players)
+            {
+                GameObject baseInstance = Instantiate(unitBasePrefab, GetStartPosition().position, Quaternion.identity);
+
+                NetworkServer.Spawn(baseInstance, player.connectionToClient);
+            }
         }
     }
 
+    #endregion
+
+    #region Client
+
+    public override void OnClientConnect(NetworkConnection conn)
+    {
+        base.OnClientConnect(conn);
+
+        ClientOnConnected?.Invoke();
+    }
+
+    public override void OnClientDisconnect(NetworkConnection conn)
+    {
+        base.OnClientDisconnect(conn);
+
+        ClientOnDisconnected?.Invoke();
+    }
+
+    public override void OnStopClient()
+    {
+        Players.Clear();
+    }
+
+    #endregion
 }
+
 

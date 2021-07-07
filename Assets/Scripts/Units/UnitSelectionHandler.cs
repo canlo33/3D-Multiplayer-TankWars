@@ -14,6 +14,7 @@ public class UnitSelectionHandler : MonoBehaviour
     private Camera mainCamera;    
     private void Start()
     {
+        player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
         mainCamera = Camera.main;
         player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
         Unit.AuthorityOnUnitDespawned += HandleAuthorityOnUnitDespawned;
@@ -34,9 +35,7 @@ public class UnitSelectionHandler : MonoBehaviour
         enabled = false;
     }
     private void Update()
-    {
-        if(player == null)
-            player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
+    {            
         SelectDeselectUnits();
     }
     private void SelectDeselectUnits()
