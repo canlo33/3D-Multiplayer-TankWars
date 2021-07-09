@@ -34,7 +34,11 @@ public class HealthSystem : NetworkBehaviour
         //Check if the player who died is also the same player who owns this unit,if not then return but if it is the same player, then destroy all the units it has.
         if (connectionToClient.connectionId != connectionId)
             return;
-        DealDamage(currentHealth);
+
+        //Check if this is already the unitbase, if so then return because unitbase is already destroyed at this point.
+        bool isUnitBase = gameObject.TryGetComponent(out UnitBase unitbase);
+        if (!isUnitBase)
+            DealDamage(currentHealth);
     }
 
     [Server]

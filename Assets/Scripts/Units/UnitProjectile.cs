@@ -22,16 +22,20 @@ public class UnitProjectile : NetworkBehaviour
     [ServerCallback]
     private void OnTriggerEnter(Collider other)
     {
+        ProcessTrigger(other.gameObject);
+    }
+
+    private void ProcessTrigger(GameObject other)
+    {
         //Check if we hit our own unit, if so then ignore.
-        if (other.TryGetComponent<NetworkIdentity>(out NetworkIdentity networkIdentity))
-        {
-            if (networkIdentity.connectionToClient == connectionToClient) { return; }
-        }
+        if (other.TryGetComponent(out NetworkIdentity networkIdentity))
+            if (networkIdentity.connectionToClient == connectionToClient)
+                return;
+
         //Deal damage to the enemy unit.
-        if (other.TryGetComponent<HealthSystem>(out HealthSystem healthSystem))
-        {
+        if (other.TryGetComponent(out HealthSystem healthSystem))
             healthSystem.DealDamage(projectileDamage);
-        }
+
         //Destroy yourself after the collision.
         SelfDestruct();
     }

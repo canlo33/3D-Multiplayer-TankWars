@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 383409750122209364}
   - component: {fileID: 2258691711930907635}
   - component: {fileID: 1057772776101347645}
-  - component: {fileID: 1223965209873238288}
   - component: {fileID: 9121852236304462529}
   - component: {fileID: 947711213669555246}
   - component: {fileID: 3966340247271765387}
+  - component: {fileID: 1223965209873238288}
   m_Layer: 0
   m_Name: Building
   m_TagString: Untagged
@@ -84,21 +84,6 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &1223965209873238288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8073379506796935437}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea71e04dcbfd2ef4b911314b17dfea86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  maxHealth: 100
 --- !u!114 &9121852236304462529
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,6 +112,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  buildingPreview: {fileID: 0}
   icon: {fileID: 0}
   id: -1
   cost: 100
@@ -145,6 +131,21 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   aimPoint: {fileID: 0}
+--- !u!114 &1223965209873238288
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8073379506796935437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea71e04dcbfd2ef4b911314b17dfea86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  maxHealth: 100
 --- !u!1001 &4622853496892151995
 PrefabInstance:
   m_ObjectHideFlags: 0

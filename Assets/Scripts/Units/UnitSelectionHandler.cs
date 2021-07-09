@@ -6,15 +6,20 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class UnitSelectionHandler : MonoBehaviour
 {
+    public static UnitSelectionHandler Instance { get; private set; }
     public List<Unit> SelectedUnits { get; private set; } = new List<Unit>();
     [SerializeField] private LayerMask layerMask;
     [SerializeField] private RectTransform selectionBox;
     private Vector2 startDraggingPosition;
     private MyPlayer player;
-    private Camera mainCamera;    
+    private Camera mainCamera;
+    public bool isTryingToBuild = false;
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
-        player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
         mainCamera = Camera.main;
         player = NetworkClient.connection.identity.GetComponent<MyPlayer>();
         Unit.AuthorityOnUnitDespawned += HandleAuthorityOnUnitDespawned;
@@ -35,8 +40,9 @@ public class UnitSelectionHandler : MonoBehaviour
         enabled = false;
     }
     private void Update()
-    {            
-        SelectDeselectUnits();
+    {   
+        if(!isTryingToBuild)
+            SelectDeselectUnits();
     }
     private void SelectDeselectUnits()
     {
@@ -47,9 +53,8 @@ public class UnitSelectionHandler : MonoBehaviour
             if(!Keyboard.current.leftShiftKey.isPressed)
             {
                 foreach (Unit selectedUnit in SelectedUnits)
-                {
                     selectedUnit.Deselect();
-                }
+
                 SelectedUnits.Clear();
             }
             selectionBox.gameObject.SetActive(true);
@@ -57,9 +62,8 @@ public class UnitSelectionHandler : MonoBehaviour
             UpdateSelectionBox();
         }
         else if (Mouse.current.leftButton.wasReleasedThisFrame)
-        {
             ClearSelectionArea();
-        }
+
         else if (Mouse.current.leftButton.isPressed)
             UpdateSelectionBox();
     }
@@ -67,9 +71,11 @@ public class UnitSelectionHandler : MonoBehaviour
     {
         //This function will update the selection box size when player clicks and drags the mouse to choice multiple units at once.
         Vector2 mousePosition = Mouse.current.position.ReadValue();
+
         // Calculate the size of the selection box. 
         float selectionBoxWidth = mousePosition.x - startDraggingPosition.x;
         float selectionBoxHeight = mousePosition.y - startDraggingPosition.y;
+
         //Set the size of the selection box and its position. Make sure the position starts from the mouse position and the values are absolute, not negative
         selectionBox.sizeDelta = new Vector2(Mathf.Abs(selectionBoxWidth), Mathf.Abs(selectionBoxHeight));
         selectionBox.anchoredPosition = startDraggingPosition + new Vector2(selectionBoxWidth / 2, selectionBoxHeight / 2);
@@ -83,10 +89,18 @@ public class UnitSelectionHandler : MonoBehaviour
         {
             //Check if we are actually clicked on a unit and we have authority on that unit or not. If so, unselect the all other units in the selected units list.
             Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask)) return;
-            if (!hit.collider.TryGetComponent<Unit>(out Unit unit)) return;
-            if (!unit.hasAuthority) return;
+
+            if (!Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
+                return;
+
+            if (!hit.collider.TryGetComponent<Unit>(out Unit unit)) 
+                return;
+
+            if (!unit.hasAuthority)
+                return;
+
             SelectedUnits.Add(unit);
+
             foreach (Unit selectedUnit in SelectedUnits)
                 selectedUnit.Select();
             return;

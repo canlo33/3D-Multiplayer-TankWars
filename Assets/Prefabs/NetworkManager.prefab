@@ -79,7 +79,7 @@ MonoBehaviour:
   onlineScene: Assets/Scenes/Level01.unity
   transport: {fileID: 7680066564213971286}
   networkAddress: localhost
-  maxConnections: 100
+  maxConnections: 2
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
@@ -93,5 +93,5 @@ MonoBehaviour:
   - {fileID: 2712006228654030393, guid: c6af9f9e4acb8ad4090e3ba2867695d0, type: 3}
   - {fileID: 6284570437997094914, guid: b38c7c90e836d044aaf46bf69afa9ff2, type: 3}
   - {fileID: 6284570437997094914, guid: 4ce4fccfa0a4b204487689116f87580a, type: 3}
-  unitSpawnerPrefab: {fileID: 6284570437997094914, guid: b8cebaf66bea14044b7b5881f0a3f5b2, type: 3}
+  unitBasePrefab: {fileID: 6284570437997094914, guid: b8cebaf66bea14044b7b5881f0a3f5b2, type: 3}
   gameOverManagerPrefab: {fileID: 773005451218260381, guid: c6af9f9e4acb8ad4090e3ba2867695d0, type: 3}

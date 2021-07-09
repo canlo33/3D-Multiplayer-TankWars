@@ -29,6 +29,9 @@ public class EnterAddressMenu : MonoBehaviour
         string address = addressInput.text;
 
         NetworkManager.singleton.networkAddress = address;
+        int activePlayerCount = ((MyNetworkManager)NetworkManager.singleton).Players.Count;
+        if (activePlayerCount > 1)
+            return;
         NetworkManager.singleton.StartClient();
 
         joinButton.interactable = false;

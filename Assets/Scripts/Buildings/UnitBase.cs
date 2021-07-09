@@ -13,6 +13,8 @@ public class UnitBase : NetworkBehaviour
     public static event Action<UnitBase> ServerOnBaseSpawned;
     public static event Action<UnitBase> ServerOnBaseDespawned;
 
+    public static event Action<UnitBase> ClientOnBaseSpawned;
+
     private void Awake()
     {
         healthSystem = GetComponent<HealthSystem>();
@@ -21,7 +23,7 @@ public class UnitBase : NetworkBehaviour
 
     public override void OnStartServer()
     {
-        healthSystem.ServerOnDie += ServerHandleDie;
+        healthSystem.ServerOnDie += ServerHandleOnDie;
 
         ServerOnBaseSpawned?.Invoke(this);
     }
@@ -30,19 +32,20 @@ public class UnitBase : NetworkBehaviour
     {
         ServerOnBaseDespawned?.Invoke(this);
 
-        healthSystem.ServerOnDie -= ServerHandleDie;
+        healthSystem.ServerOnDie -= ServerHandleOnDie;
     }
-
+    public override void OnStartAuthority()
+    {
+        ClientOnBaseSpawned?.Invoke(this);
+    }
     [Server]
-    private void ServerHandleDie()
+    private void ServerHandleOnDie()
     {
         ServerOnPlayerDied?.Invoke(connectionToClient.connectionId);
+
         NetworkServer.Destroy(gameObject);
     }
 
     #endregion
 
-    #region Client
-
-    #endregion
 }

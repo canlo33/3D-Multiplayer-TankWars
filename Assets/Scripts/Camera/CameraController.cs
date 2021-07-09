@@ -11,6 +11,7 @@ public class CameraController : NetworkBehaviour
     [SerializeField] private float screenBorderThickness = 10f;
     [SerializeField] private Vector2 screenXLimits = Vector2.zero;
     [SerializeField] private Vector2 screenZLimits = Vector2.zero;
+    public MyPlayer myPlayer;
 
     private Vector2 previousInput;
 
@@ -19,7 +20,7 @@ public class CameraController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         playerCameraTransform.gameObject.SetActive(true);
-        playerCameraTransform.position = new Vector3(0f, 10f, 0f);
+        UnitBase.ClientOnBaseSpawned += CameraSetup;
 
         inputControls = new InputControls();
 
@@ -32,9 +33,11 @@ public class CameraController : NetworkBehaviour
     [ClientCallback]
     private void Update()
     {
-        if (!hasAuthority || !Application.isFocused) { return; }
+        if (!hasAuthority || !Application.isFocused)  
+            return; 
 
         UpdateCameraPosition();
+        
     }
 
     private void UpdateCameraPosition()
@@ -73,6 +76,17 @@ public class CameraController : NetworkBehaviour
         pos.z = Mathf.Clamp(pos.z, screenZLimits.x, screenZLimits.y);
 
         playerCameraTransform.position = pos;
+    }
+
+    
+    private void CameraSetup(UnitBase unitBase)
+    {
+        //Make each players camera to start at where their unit base is.
+        if (unitBase.connectionToClient == connectionToClient)
+        {
+            Vector3 offset = new Vector3(0, 20f, -20);
+            playerCameraTransform.position = unitBase.transform.position + offset;
+        }
     }
 
     private void SetPreviousInput(InputAction.CallbackContext ctx)

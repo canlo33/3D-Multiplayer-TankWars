@@ -16,25 +16,26 @@ public class GameOverManager : NetworkBehaviour
 
     public override void OnStartServer()
     {
-        UnitBase.ServerOnBaseSpawned += ServerHandleBaseSpawned;
-        UnitBase.ServerOnBaseDespawned += ServerHandleBaseDespawned;
+        UnitBase.ServerOnBaseSpawned += ServerHandleOnBaseSpawned;
+        UnitBase.ServerOnBaseDespawned += ServerHandleOnBaseDespawned;
     }
 
     public override void OnStopServer()
     {
-        UnitBase.ServerOnBaseSpawned -= ServerHandleBaseSpawned;
-        UnitBase.ServerOnBaseDespawned -= ServerHandleBaseDespawned;
+        UnitBase.ServerOnBaseSpawned -= ServerHandleOnBaseSpawned;
+        UnitBase.ServerOnBaseDespawned -= ServerHandleOnBaseDespawned;
     }
 
     [Server]
-    private void ServerHandleBaseSpawned(UnitBase unitBase)
+    private void ServerHandleOnBaseSpawned(UnitBase unitBase)
     {
         activeBases.Add(unitBase);
     }
 
     [Server]
-    private void ServerHandleBaseDespawned(UnitBase unitBase)
+    private void ServerHandleOnBaseDespawned(UnitBase unitBase)
     {
+        Debug.Log("Here is fine so far");
         activeBases.Remove(unitBase);
 
         //Check if there is only 1 base left.
@@ -43,7 +44,7 @@ public class GameOverManager : NetworkBehaviour
 
         int playerId = activeBases[0].connectionToClient.connectionId;
 
-        RpcGameOver(playerId.ToString());
+        RpcGameOver("Player " + (playerId + 1).ToString());
 
         ServerOnGameOver?.Invoke();
     }

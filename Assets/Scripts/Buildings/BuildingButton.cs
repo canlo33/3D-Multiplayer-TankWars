@@ -50,6 +50,7 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         buildingRendererInstance = buildingPreviewInstance.GetComponentInChildren<Renderer>();
 
         buildingPreviewInstance.SetActive(false);
+        UnitSelectionHandler.Instance.isTryingToBuild = true;
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -64,6 +65,7 @@ public class BuildingButton : MonoBehaviour, IPointerDownHandler, IPointerUpHand
             player.CmdTryPlaceBuilding(building.GetId(), hit.point);
 
         Destroy(buildingPreviewInstance);
+        UnitSelectionHandler.Instance.isTryingToBuild = false;
     }
 
     private void UpdateBuildingPreview()

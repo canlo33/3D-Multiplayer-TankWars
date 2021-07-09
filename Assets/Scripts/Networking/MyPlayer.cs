@@ -12,7 +12,7 @@ public class MyPlayer : NetworkBehaviour
 
     [SerializeField] private LayerMask buildingBlockLayer = new LayerMask();
 
-    [SerializeField] private float buildingRangeLimit = 5f;
+    [SerializeField] private float buildingRangeLimit = 20f;
 
     public event Action<int> ClientOnResourcesUpdated;
 
@@ -51,11 +51,11 @@ public class MyPlayer : NetworkBehaviour
             return false;
 
         //Check if we are close enough to our buildings.
-        foreach (Building building in buildings)
-        {
+        foreach (Building building in MyBuildings)
             if (Vector3.Distance(point, building.transform.position) <= buildingRangeLimit)
                 return true;
-        }
+
+
         return false;
     }
     public bool GetIsPartyOwner()

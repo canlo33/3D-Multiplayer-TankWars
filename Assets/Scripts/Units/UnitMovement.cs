@@ -31,7 +31,8 @@ public class UnitMovement : NetworkBehaviour
     private void HandleServerOnGameOver()
     {
         //When the game is over, stop all the units.
-        agent.ResetPath();
+        if(agent != null)
+            agent.ResetPath();
     }
 
         //We using Unity functions with ServerCallback instead of Server as otherwise it will keep throwing errors in the console.
@@ -67,9 +68,13 @@ public class UnitMovement : NetworkBehaviour
     public void ServerMove(Vector3 position)
     {
         // This function will check if the position player wants to move towards is legit, then commands the server to move the unit.
-        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas))  return;
+        if (!NavMesh.SamplePosition(position, out NavMeshHit hit, 1f, NavMesh.AllAreas)) 
+            return;
         
         agent.SetDestination(hit.position);
+
+        if (targeter != null)
+            targeter.ClearTarget();
     }
 
     #endregion

@@ -27,6 +27,6 @@ public class ResourcesUI : MonoBehaviour
     private void HandleClientOnResourcesUpdated(int resources)
     {
         //When Resources changed, update the UI text.
-        resourcesText.text = "Resources: " + resources;
+        resourcesText.text = "Energy: " + resources;
     }
 }
